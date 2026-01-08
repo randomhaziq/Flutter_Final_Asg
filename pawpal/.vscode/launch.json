@@ -1,0 +1,41 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "pawpal (Existing Chrome)",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "debug",
+            "args": [
+                "-d",
+                "web-server",
+                "--web-port",
+                "3000"
+            ]
+        },
+        {
+            "name": "pawpal (Profile)",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile",
+            "args": [
+                "-d",
+                "web-server",
+                "--web-port",
+                "3000"
+            ]
+        },
+        {
+            "name": "pawpal (Release)",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release",
+            "args": [
+                "-d",
+                "web-server",
+                "--web-port",
+                "3000"
+            ]
+        }
+    ]
+}
