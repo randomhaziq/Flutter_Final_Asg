@@ -3,7 +3,7 @@ import 'package:pawpal/myconfig.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:pawpal/model/user.dart';
-import 'package:pawpal/pages/mainscreen.dart';
+import 'package:pawpal/pages/home_page.dart';
 import 'package:pawpal/pages/register_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

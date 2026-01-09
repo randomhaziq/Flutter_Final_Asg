@@ -56,17 +56,13 @@ dev_dependencies:
 # The following section is specific to Flutter packages.
 flutter:
 
-  # The following line ensures that the Material Icons font is
+  # The following li  ne ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
   assets:
-    - assets/images/category/dog_category.png
-    - assets/images/category/cat_category.png
-    - assets/images/category/bird_category.png
-    - assets/images/category/more_category.png
     - assets/images/pawpal_icon.png
     - assets/images/register_image.png
     - assets/images/pet_submission_image.png

@@ -12,12 +12,20 @@ class Pet {
   String? lng;
   String? createdAt;
 
+  String? petAge;
+  String? petGender;
+  String? petHealth;
+
+
   Pet({
     this.petId,
     this.userId,
     this.petName,
+    this.petAge,
+    this.petGender,
     this.petType,
     this.category,
+    this.petHealth,
     this.description,
     this.imagePaths,
     this.lat,
@@ -29,8 +37,11 @@ class Pet {
     petId = json['pet_id']?.toString();
     userId = json['user_id']?.toString();
     petName = json['pet_name'];
+    petAge = json['age'];
+    petGender = json['gender'];
     petType = json['pet_type'];
     category = json['category'];
+    petHealth = json['health_status'];
     description = json['description'];
 
     // Handle imagePaths - backend returns it as List (already json_decoded in PHP)
@@ -57,8 +68,11 @@ class Pet {
     data['pet_id'] = petId;
     data['user_id'] = userId;
     data['pet_name'] = petName;
+    data['pet_age'] = petAge;
+    data['pet_gender'] = petGender;
     data['pet_type'] = petType;
     data['category'] = category;
+    data['pet_health'] = petHealth;
     data['description'] = description;
     data['image_paths'] = imagePaths;
     data['lat'] = lat;

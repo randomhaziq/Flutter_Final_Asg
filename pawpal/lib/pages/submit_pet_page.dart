@@ -7,7 +7,7 @@ import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:pawpal/model/user.dart';
 import 'package:pawpal/myconfig.dart';
-import 'package:pawpal/pages/pet_details_page.dart';
+import 'package:pawpal/pages/home_page.dart';
 
 class SubmitPetScreen extends StatefulWidget {
   final User currentUser;
@@ -23,6 +23,8 @@ class _SubmitPetScreenState extends State<SubmitPetScreen> {
 
   String? selectedPetType;
   String? selectedSubmissionCategory;
+  String? selectedGender;
+
   late Position myposition;
   bool isLoading = false;
 
@@ -30,6 +32,8 @@ class _SubmitPetScreenState extends State<SubmitPetScreen> {
   TextEditingController petDescriptionController = TextEditingController();
   TextEditingController latitudeController = TextEditingController();
   TextEditingController longitudeController = TextEditingController();
+  TextEditingController petAgeController = TextEditingController();
+  TextEditingController petHealthController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +42,7 @@ class _SubmitPetScreenState extends State<SubmitPetScreen> {
 
     final contentWidth = screenWidth > 900 ? 900.0 : screenWidth;
     final contentHeight = screenHeight > 600 ? 600.0 : screenHeight;
-    
+
     return Scaffold(
       appBar: AppBar(title: const Text("Pet Submission")),
       body: Row(
@@ -59,227 +63,308 @@ class _SubmitPetScreenState extends State<SubmitPetScreen> {
 
           // Right side submit pet form
           Expanded(
-            
             child: Container(
+              width: contentWidth,
+              height: contentHeight,
               padding: const EdgeInsets.all(20),
               color: Colors.white,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const Text(
-                    'Submit A Pet',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'Bubblegum Sans',
-                    ),
-                  ),
-                  SizedBox(height: 30),
-
-                  // Pet Name field
-                  SizedBox(
-                    width: 300,
-                    child: TextField(
-                      controller: petNameController,
-                      decoration: InputDecoration(
-                        labelText: 'Pet Name',
-                        enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.orange),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.orange),
-                        ),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const Text(
+                      'Submit A Pet',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'Bubblegum Sans',
                       ),
                     ),
-                  ),
-                  SizedBox(height: 20),
+                    SizedBox(height: 30),
 
-                  // Dropdown for pet type
-                  SizedBox(
-                    width: 300,
-                    child: DropdownButtonFormField<String>(
-                      decoration: InputDecoration(
-                        labelText: 'Pet Type',
-                        enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.orange),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.orange),
-                        ),
-                      ),
-                      initialValue: selectedPetType,
-                      items: <String>['Dog', 'Cat', 'Bird', 'Other'].map((
-                        String value,
-                      ) {
-                        return DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value),
-                        );
-                      }).toList(),
-                      onChanged: (String? newValue) {
-                        setState(() {
-                          selectedPetType = newValue;
-                        });
-                      },
-                      hint: const Text('Select Pet Type'),
-                    ),
-                  ),
-                  SizedBox(height: 20),
-
-                  //dropdown for submission type
-                  SizedBox(
-                    width: 300,
-                    child: DropdownButtonFormField<String>(
-                      decoration: InputDecoration(
-                        labelText: 'Submission Category',
-                        enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.orange),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.orange),
-                        ),
-                      ),
-                      items:
-                          <String>[
-                            'Adoption',
-                            'Donation Request',
-                            'Help/ Rescue',
-                          ].map((String value) {
-                            return DropdownMenuItem<String>(
-                              value: value,
-                              child: Text(value),
-                            );
-                          }).toList(),
-                      onChanged: (String? newValue) {
-                        setState(() {
-                          selectedSubmissionCategory = newValue;
-                        });
-                      },
-                      hint: const Text('Select Submission Category'),
-                    ),
-                  ),
-                  SizedBox(height: 20),
-
-                  // Description field
-                  SizedBox(
-                    width: 300,
-                    child: TextField(
-                      controller: petDescriptionController,
-                      maxLines: 2,
-                      decoration: InputDecoration(
-                        labelText: 'Description',
-                        enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.orange),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.orange),
-                        ),
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 20),
-
-                  //latitue and longitude fields
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SizedBox(
-                        width: 120,
-                        child: TextField(
-                          controller: latitudeController,
-                          enabled: false,
-                          decoration: InputDecoration(
-                            labelText: 'Latitude',
-                            enabledBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.orange),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.orange),
-                            ),
+                    // Pet Name field
+                    SizedBox(
+                      width: 300,
+                      child: TextField(
+                        controller: petNameController,
+                        decoration: InputDecoration(
+                          labelText: 'Pet Name',
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.orange),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.orange),
                           ),
                         ),
                       ),
-                      SizedBox(width: 10),
-                      SizedBox(
-                        width: 120,
-                        child: TextField(
-                          controller: longitudeController,
-                          enabled: false,
-                          decoration: InputDecoration(
-                            labelText: 'Longitude',
-                            enabledBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.orange),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.orange),
+                    ),
+                    SizedBox(height: 20),
+
+                    // Row for Age and Gender (Grouped)
+                    SizedBox(
+                      width: 300,
+                      child: Row(
+                        children: [
+                          // Age Field
+                          Expanded(
+                            flex: 1,
+                            child: TextField(
+                              controller: petAgeController,
+                              decoration: InputDecoration(
+                                labelText: 'Age',
+                                enabledBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.orange),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.orange),
+                                ),
+                              ),
                             ),
                           ),
-                        ),
+                          const SizedBox(width: 10),
+
+                          // Gender Dropdown
+                          Expanded(
+                            flex: 1,
+                            child: DropdownButtonFormField<String>(
+                              decoration: InputDecoration(
+                                labelText: 'Gender',
+                                enabledBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.orange),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.orange),
+                                ),
+                              ),
+                              value: selectedGender,
+                              items: <String>['Male', 'Female'].map((
+                                String value,
+                              ) {
+                                return DropdownMenuItem<String>(
+                                  value: value,
+                                  child: Text(value),
+                                );
+                              }).toList(),
+                              onChanged: (newValue) {
+                                setState(() {
+                                  selectedGender = newValue;
+                                });
+                              },
+                            ),
+                          ),
+                        ],
                       ),
-                      IconButton(
-                        icon: Icon(Icons.location_on),
-                        onPressed: () async {
-                          myposition = await _determinePosition();
+                    ),
+                    const SizedBox(height: 15),
+
+                    // Dropdown for pet type
+                    SizedBox(
+                      width: 300,
+                      child: DropdownButtonFormField<String>(
+                        decoration: InputDecoration(
+                          labelText: 'Pet Type',
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.orange),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.orange),
+                          ),
+                        ),
+                        initialValue: selectedPetType,
+                        items: <String>['Dog', 'Cat', 'Bird', 'Other'].map((
+                          String value,
+                        ) {
+                          return DropdownMenuItem<String>(
+                            value: value,
+                            child: Text(value),
+                          );
+                        }).toList(),
+                        onChanged: (String? newValue) {
                           setState(() {
-                            latitudeController.text = myposition.latitude
-                                .toStringAsFixed(6);
-                            longitudeController.text = myposition.longitude
-                                .toStringAsFixed(6);
+                            selectedPetType = newValue;
                           });
                         },
-                        iconSize: 40,
-                        color: Colors.orange[400],
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 20),
-
-                  //3 image placeholders
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      placeholderImage(0),
-                      SizedBox(width: 10),
-                      placeholderImage(1),
-                      SizedBox(width: 10),
-                      placeholderImage(2),
-                    ],
-                  ),
-                  SizedBox(height: 10),
-
-                  // Upload image button
-                  ElevatedButton(
-                    onPressed: addImage,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue[700],
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 30,
-                        vertical: 15,
+                        hint: const Text('Select Pet Type'),
                       ),
                     ),
-                    child: const Text(
-                      '+ Add Image',
-                      style: TextStyle(fontSize: 18),
-                    ),
-                  ),
-                  SizedBox(height: 20),
+                    SizedBox(height: 20),
 
-                  // Submit button
-                  ElevatedButton(
-                    onPressed: submitPet,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.orange[400],
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 40,
-                        vertical: 15,
+                    //dropdown for submission type
+                    SizedBox(
+                      width: 300,
+                      child: DropdownButtonFormField<String>(
+                        decoration: InputDecoration(
+                          labelText: 'Submission Category',
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.orange),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.orange),
+                          ),
+                        ),
+                        items:
+                            <String>[
+                              'Adoption',
+                              'Donation Request',
+                              'Help/ Rescue',
+                            ].map((String value) {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(value),
+                              );
+                            }).toList(),
+                        onChanged: (String? newValue) {
+                          setState(() {
+                            selectedSubmissionCategory = newValue;
+                          });
+                        },
+                        hint: const Text('Select Submission Category'),
                       ),
                     ),
-                    child: const Text('Submit', style: TextStyle(fontSize: 18)),
-                  ),
-                ],
+                    SizedBox(height: 20),
+
+                    // Health Status field
+                    SizedBox(
+                      width: 300,
+                      child: TextField(
+                        controller: petHealthController,
+                        decoration: InputDecoration(
+                          labelText: 'Health Status',
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.orange),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.orange),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 15),
+
+                    // Description field
+                    SizedBox(
+                      width: 300,
+                      child: TextField(
+                        controller: petDescriptionController,
+                        maxLines: 2,
+                        decoration: InputDecoration(
+                          labelText: 'Description',
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.orange),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.orange),
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 20),
+
+                    //latitue and longitude fields
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SizedBox(
+                          width: 120,
+                          child: TextField(
+                            controller: latitudeController,
+                            enabled: false,
+                            decoration: InputDecoration(
+                              labelText: 'Latitude',
+                              enabledBorder: OutlineInputBorder(
+                                borderSide: BorderSide(color: Colors.orange),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderSide: BorderSide(color: Colors.orange),
+                              ),
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: 10),
+                        SizedBox(
+                          width: 120,
+                          child: TextField(
+                            controller: longitudeController,
+                            enabled: false,
+                            decoration: InputDecoration(
+                              labelText: 'Longitude',
+                              enabledBorder: OutlineInputBorder(
+                                borderSide: BorderSide(color: Colors.orange),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderSide: BorderSide(color: Colors.orange),
+                              ),
+                            ),
+                          ),
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.location_on),
+                          onPressed: () async {
+                            myposition = await _determinePosition();
+                            setState(() {
+                              latitudeController.text = myposition.latitude
+                                  .toStringAsFixed(6);
+                              longitudeController.text = myposition.longitude
+                                  .toStringAsFixed(6);
+                            });
+                          },
+                          iconSize: 40,
+                          color: Colors.orange[400],
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 20),
+
+                    //3 image placeholders
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        placeholderImage(0),
+                        SizedBox(width: 10),
+                        placeholderImage(1),
+                        SizedBox(width: 10),
+                        placeholderImage(2),
+                      ],
+                    ),
+                    SizedBox(height: 10),
+
+                    // Upload image button
+                    ElevatedButton(
+                      onPressed: addImage,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue[700],
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 30,
+                          vertical: 15,
+                        ),
+                      ),
+                      child: const Text(
+                        '+ Add Image',
+                        style: TextStyle(fontSize: 18),
+                      ),
+                    ),
+                    SizedBox(height: 20),
+
+                    // Submit button
+                    ElevatedButton(
+                      onPressed: submitPet,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.orange[400],
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 40,
+                          vertical: 15,
+                        ),
+                      ),
+                      child: const Text(
+                        'Submit',
+                        style: TextStyle(fontSize: 18),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -359,6 +444,28 @@ class _SubmitPetScreenState extends State<SubmitPetScreen> {
       return;
     }
 
+    int? age = int.tryParse(petAgeController.text);
+
+    if (petAgeController.text.isEmpty || age == null || age <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please enter a valid pet age'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+
+    if (selectedGender == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please select pet gender'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+
     if (selectedPetType == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -409,8 +516,11 @@ class _SubmitPetScreenState extends State<SubmitPetScreen> {
 
     String userId = widget.currentUser.userId!;
     String petName = petNameController.text.trim();
+    String petAge = petAgeController.text.trim();
+    String petGender = selectedGender!;
     String petType = selectedPetType!;
     String category = selectedSubmissionCategory!;
+    String health = petHealthController.text.trim();
     String petDescription = petDescriptionController.text.trim();
     double latitude = double.parse(latitudeController.text);
     double longitude = double.parse(longitudeController.text);
@@ -418,8 +528,11 @@ class _SubmitPetScreenState extends State<SubmitPetScreen> {
     uploadPetData(
       userId,
       petName,
+      petAge,
+      petGender,
       petType,
       category,
+      health,
       petDescription,
       latitude,
       longitude,
@@ -468,8 +581,11 @@ class _SubmitPetScreenState extends State<SubmitPetScreen> {
   void uploadPetData(
     String userId,
     String petName,
+    String petAge,
+    String petGender,
     String petType,
     String category,
+    String petHealth,
     String petDescription,
     double latitude,
     double longitude,
@@ -499,8 +615,11 @@ class _SubmitPetScreenState extends State<SubmitPetScreen> {
     Map<String, String> requestBody = {
       'user_id': userId,
       'pet_name': petName,
+      'pet_age': petAge,
+      'pet_gender': petGender,
       'pet_type': petType,
       'category': category,
+      'health': petHealth,
       'description': petDescription,
       'latitude': latitude.toString(),
       'longitude': longitude.toString(),
@@ -517,7 +636,9 @@ class _SubmitPetScreenState extends State<SubmitPetScreen> {
 
     try {
       final response = await http.post(
-        Uri.parse('${MyConfig.baseUrl}/pawpal/server/pawpal/api/submit_pet.php'),
+        Uri.parse(
+          '${MyConfig.baseUrl}/pawpal/server/pawpal/api/submit_pet.php',
+        ),
         body: requestBody,
       );
 
@@ -581,7 +702,6 @@ class _SubmitPetScreenState extends State<SubmitPetScreen> {
       if (!mounted) return;
       Navigator.of(context).pop();
 
-      print('Exception: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           backgroundColor: Colors.red,
