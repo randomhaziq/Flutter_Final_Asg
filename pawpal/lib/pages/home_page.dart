@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:pawpal/model/pet.dart';
 import 'package:pawpal/model/user.dart';
 import 'package:pawpal/myconfig.dart';
-import 'package:pawpal/pages/login_page.dart';
+import 'package:pawpal/pages/profile_page.dart';
 import 'package:pawpal/pages/submit_pet_page.dart';
 import 'package:pawpal/pages/pet_details_page.dart';
 
@@ -44,6 +44,7 @@ class _BrowsePetsState extends State<BrowsePets> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Home Page"),
+        actionsPadding: EdgeInsets.symmetric(horizontal: 16),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -55,14 +56,17 @@ class _BrowsePetsState extends State<BrowsePets> {
             },
           ),
           IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => LoginPage()),
-              );
-            },
+      icon: const Icon(Icons.person),
+      onPressed: () async {
+        if (!mounted) return;
+        await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ProfilePage(user: currentUser!),
           ),
+        );
+      },
+    ),
         ],
       ),
       body: Column(
@@ -91,17 +95,32 @@ class _BrowsePetsState extends State<BrowsePets> {
                   SizedBox(
                     width: 400,
                     child: TextField(
+                      controller: searchController,
+                      onSubmitted: (value) => searchPets(value),
                       decoration: InputDecoration(
                         fillColor: Colors.white70,
                         filled: true,
                         prefixIcon: Icon(Icons.search),
-                        suffixIcon: Icon(Icons.cancel),
+                        suffixIcon: IconButton(
+                          icon: Icon(Icons.clear),
+                          onPressed: () {
+                            setState(() {
+                              searchController.clear();
+                              searchQuery = '';
+                              isLoading = true;
+                            });
+                            loadPets();
+                          },
+                        ),
                         labelText: 'Search by Pet Name',
                         border: OutlineInputBorder(),
                       ),
-                      onSubmitted: (value) => searchPets(value),
                     ),
                   ),
+                  const SizedBox(width: 20),
+                                   
+                 //ICON: ICON.FILTER
+                  const Icon(Icons.filter_list, size: 30), 
                   const SizedBox(width: 10),
 
                   //filter dropdown
@@ -188,7 +207,13 @@ class _BrowsePetsState extends State<BrowsePets> {
     );
   }
 
-  void searchPets(String petName) {}
+  void searchPets(String petName) {
+    setState(() {
+      searchQuery = petName;
+      isLoading = true;
+    });
+    loadPets();
+  }
 
   Widget showPetCard(int index) {
     Pet pet = listPets[index];
@@ -210,13 +235,13 @@ class _BrowsePetsState extends State<BrowsePets> {
       
         //image
         child: Container(
-          height: 140,
+          height: 200,
           padding: const EdgeInsets.all(10),
           child: Row(
             children: [
               Container(
-                width: 100,
-                height: 100,
+                width: 150,
+                height: 150,
                 margin: const EdgeInsets.symmetric(horizontal: 5),
                 decoration: BoxDecoration(
                   color: Colors.grey[200],
@@ -245,32 +270,23 @@ class _BrowsePetsState extends State<BrowsePets> {
                     Text(
                       '${pet.petName}',
                       style: const TextStyle(
-                        fontSize: 18,
+                        fontSize: 32,
                         fontWeight: FontWeight.bold,
+                        fontFamily: 'Bubblegum Sans',
                       ),
                     ),
                     Text(
                       'Pet Type: ${pet.petType}',
                       style: const TextStyle(
-                        fontSize: 14,
+                        fontSize: 20,
                       ),
                     ),
                     Text(
                       'Age: ${pet.petAge}',
                       style: const TextStyle(
-                        fontSize: 14,
+                        fontSize: 20,
                       ),
                     ),
-                    //should move to pet details page
-                    // Text(
-                    //   'Description: ${pet.description}',
-                    //   maxLines: 2,
-                    //   overflow: TextOverflow.ellipsis,
-                    //   style: const TextStyle(
-                    //     fontSize: 14,
-                    //     fontStyle: FontStyle.italic,
-                    //   ),
-                    // ),
                   ],
                 ),
               ),
@@ -284,23 +300,35 @@ class _BrowsePetsState extends State<BrowsePets> {
   }
 
   Future<void> loadPets() async {
-    try {
-      final fetchedPets = await http.get(
-        Uri.parse(
-          '${MyConfig.baseUrl}/pawpal/server/pawpal/api/get_my_pets.php',
-        ),
-      );
+    listPets.clear();
+    setState(() {
+      isLoading = true;
+    });
 
-      var resArray = jsonDecode(fetchedPets.body);
+    String url = '${MyConfig.baseUrl}/pawpal/server/pawpal/api/get_my_pets.php';
+    Map<String, String> queryParams = {};
+    
+    if (searchQuery.isNotEmpty) queryParams['search'] = searchQuery;
+    if (selectedCategory != "All") queryParams['type'] = selectedCategory;
+
+    Uri uri = Uri.parse(url).replace(queryParameters: queryParams);
+
+    try {
+      final response = await http.get(uri);
+
+      var resArray = jsonDecode(response.body);
       if (resArray['status'] == 'success') {
         var petsData = resArray['data'] as List;
         setState(() {
-          isLoading = false;
           listPets = petsData.map((petJson) => Pet.fromJson(petJson)).toList();
+          isLoading = false;
         });
       } else {
         setState(() {
           isLoading = false;
+          if (resArray['status'] == 'failed') {
+             listPets.clear();
+          }
         });
       }
     } catch (e) {

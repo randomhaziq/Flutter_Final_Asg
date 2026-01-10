@@ -11,11 +11,11 @@ if ($_SERVER['REQUEST_METHOD'] != 'POST') {
 
 $user_id = isset($_POST['user_id']) ? $_POST['user_id'] : '';
 $pet_name = isset($_POST['pet_name']) ? addslashes($_POST['pet_name']) : '';
-$age = isset($_POST['pet_age']) ? $_POST['pet_age'] : '';
-$gender = isset($_POST['pet_gender']) ? $_POST['pet_gender'] : '';
+$age = isset($_POST['age']) ? $_POST['age'] : '';
+$gender = isset($_POST['gender']) ? $_POST['gender'] : '';
 $pet_type = isset($_POST['pet_type']) ? $_POST['pet_type'] : '';
 $category = isset($_POST['category']) ? $_POST['category'] : '';
-$health_status = isset($_POST['health']) ? addslashes($_POST['health']) : '';
+$health_status = isset($_POST['health_status']) ? addslashes($_POST['health_status']) : '';
 $description = isset($_POST['description']) ? addslashes($_POST['description']) : '';
 $lat = isset($_POST['latitude']) ? $_POST['latitude'] : '';
 $lng = isset($_POST['longitude']) ? $_POST['longitude'] : '';

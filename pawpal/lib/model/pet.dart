@@ -15,7 +15,7 @@ class Pet {
   String? petAge;
   String? petGender;
   String? petHealth;
-
+  String? petStatus;
 
   Pet({
     this.petId,
@@ -30,6 +30,7 @@ class Pet {
     this.imagePaths,
     this.lat,
     this.lng,
+    this.petStatus,
     this.createdAt,
   });
 
@@ -60,6 +61,7 @@ class Pet {
     // Handle latitude/longitude - database uses 'latitude' and 'longitude'
     lat = json['latitude']?.toString() ?? json['lat']?.toString();
     lng = json['longitude']?.toString() ?? json['lng']?.toString();
+    petStatus = json['status'];
     createdAt = json['created_at'];
   }
 
@@ -77,6 +79,7 @@ class Pet {
     data['image_paths'] = imagePaths;
     data['lat'] = lat;
     data['lng'] = lng;
+    data['status'] = petStatus;
     data['created_at'] = createdAt;
     return data;
   }

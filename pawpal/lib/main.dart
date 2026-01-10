@@ -54,8 +54,7 @@ class _PawPalState extends State<PawPal> {
           iconTheme: IconThemeData(color: Colors.white),
         ),
       ),
-      home: BrowsePets(),
-      // home: LoginPage(),
+      home: LoginPage(),
       
     );
   }

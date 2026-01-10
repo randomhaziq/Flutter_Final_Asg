@@ -1,57 +1,70 @@
 <?php
-    header('Access-Control-Allow-Origin: *');
-    header('Content-Type: application/json');
-    include 'dbconnect.php';
+header('Access-Control-Allow-Origin: *');
+header('Content-Type: application/json');
+include 'dbconnect.php';
 
-    // Handle GET request to retrieve all pets
-    if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-        try {
-            // Query to fetch all pets from the database
-            $sql = "SELECT * FROM `tbl_pets`";
-            $result = $conn->query($sql);
-            
-            if ($result) {
-                $pets = [];
-                
-                // Fetch all rows from the result
-                while ($row = $result->fetch_assoc()) {
-                    $row['image_paths'] = json_decode($row['image_paths'], true);
-                    $pets[] = $row;
-                }
-            
-                
-                // Return success response with pets data
-                $response = array(
-                    'status' => 'success',
-                    'data' => $pets
-                );
-                
-                echo json_encode($response);
-            } else {
-                // Query failed
-                $response = array(
-                    'status' => 'failed',
-                    'message' => 'Error retrieving pets: ' . $conn->error
-                );
-                http_response_code(500);
-                echo json_encode($response);
+// Handle GET request to retrieve all pets
+if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+    try {
+        // Query to fetch all pets from the database
+        $sql = "SELECT * FROM `tbl_pets` WHERE 1=1";
+
+        //check for search quer (by pet name)
+        if (isset($_GET['search']) && !empty($_GET['search'])) {
+            $search = $conn->real_escape_string($_GET['search']);
+            $sql .= " AND `pet_name` LIKE '%$search%'";
+        }
+
+        //check for type filter
+        if (isset($_GET['type']) && !empty($_GET['type']) && $_GET['type'] != "All") {
+            $type = $conn->real_escape_string($_GET['type']);
+            $sql .= " AND `pet_type` = '$type'";
+        }
+
+        $result = $conn->query($sql);
+
+        if ($result) {
+            $pets = [];
+
+            // Fetch all rows from the result
+            while ($row = $result->fetch_assoc()) {
+                $row['image_paths'] = json_decode($row['image_paths'], true);
+                $pets[] = $row;
             }
-        } catch (Exception $e) {
-            // Exception handling
+
+
+            // Return success response with pets data
+            $response = array(
+                'status' => 'success',
+                'data' => $pets
+            );
+
+            echo json_encode($response);
+        } else {
+            // Query failed
             $response = array(
                 'status' => 'failed',
-                'message' => 'Exception: ' . $e->getMessage()
+                'message' => 'Error retrieving pets: ' . $conn->error
             );
             http_response_code(500);
             echo json_encode($response);
         }
-    } else {
-        // Handle invalid request method
+    } catch (Exception $e) {
+        // Exception handling
         $response = array(
             'status' => 'failed',
-            'message' => 'Invalid request'
+            'message' => 'Exception: ' . $e->getMessage()
         );
-        http_response_code(405);
+        http_response_code(500);
         echo json_encode($response);
     }
+} else {
+    // Handle invalid request method
+    $response = array(
+        'status' => 'failed',
+        'message' => 'Invalid request'
+    );
+    http_response_code(405);
+    echo json_encode($response);
+}
 ?>
