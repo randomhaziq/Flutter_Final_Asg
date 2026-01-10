@@ -50,16 +50,16 @@ class _EditProfilePageState extends State<EditProfilePage> {
                             image: FileImage(_image!),
                             fit: BoxFit.cover,
                           )
-                        : widget.user.userProfileImage != null
+                        : widget.user.profileImage != null
                         ? DecorationImage(
                             image: NetworkImage(
-                              '${MyConfig.baseUrl}/pawpal/server/${widget.user.userProfileImage}',
+                              '${MyConfig.baseUrl}/pawpal/server/${widget.user.profileImage}',
                             ),
                             fit: BoxFit.cover,
                           )
                         : null,
                   ),
-                  child: _image == null && widget.user.userProfileImage == null
+                  child: _image == null && widget.user.profileImage == null
                       ? const Icon(
                           Icons.camera_alt,
                           size: 40,
@@ -130,7 +130,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
   Future<void> _selectImage() async {
     final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery, maxHeight: 800, 
+        maxWidth: 800,
+        imageQuality: 50);
     if (pickedFile != null) {
       setState(() {
         _image = File(pickedFile.path);
@@ -144,9 +146,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
     String newPhone = phoneController.text.trim();
 
     if (newName.isEmpty || newPhone.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text("Fields cannot be empty")));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Fields cannot be empty")),
+      );
       return;
     }
 
@@ -170,46 +172,58 @@ class _EditProfilePageState extends State<EditProfilePage> {
           'user_id': widget.user.userId,
           'name': newName,
           'phone': newPhone,
-          'profile_image': base64Image ?? '', // Send empty string if no new image
+          'image': base64Image ?? '', 
         },
-      );
+      ).timeout(const Duration(seconds: 30)); 
 
-      Navigator.pop(context); // Close loading dialog
+      if (mounted && Navigator.canPop(context)) {
+        Navigator.pop(context);
+      }
 
       if (response.statusCode == 200) {
-        var jsonResponse = jsonDecode(response.body);
-        if (jsonResponse['status'] == 'success') {
-          // Update Local User Object to return back
-          User updatedUser = widget.user;
-          updatedUser.userName = newName;
-          updatedUser.userPhone = newPhone;
+        try {
+          var jsonResponse = jsonDecode(response.body);
+          if (jsonResponse['status'] == 'success') {
+            User updatedUser = widget.user;
+            updatedUser.userName = newName;
+            updatedUser.userPhone = newPhone;
 
-          // If the server updated the image, we assume the path is standard
-          // In a real scenario, the API should return the new image path.
-          // For now, we rely on reloading or the user seeing the change next session if we don't have the new path returned.
-          // However, to make the UI update instantly without API return data, we can try to reload or just pop.
+            if (jsonResponse['new_image'] != null && jsonResponse['new_image'].toString().isNotEmpty) {
+               updatedUser.profileImage = jsonResponse['new_image'];
+            }
 
+            if (!mounted) return;
+            Navigator.pop(context, updatedUser); // Return to ProfilePage
+             
+             ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text("Profile Updated Successfully")),
+            );
+          } else {
+             if (!mounted) return;
+             ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text("Failed: ${jsonResponse['message']}")),
+            );
+          }
+        } catch (e) {
+          // JSON Decode failed (Server sent HTML/Text instead of JSON)
+          print("JSON Parse Error: $e");
+          if (!mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Profile Updated Successfully")),
-          );
-
-          // Return the updated user object to the previous screen
-          Navigator.pop(context, updatedUser);
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text("Failed: ${jsonResponse['message']}")),
+            const SnackBar(content: Text("Server returned invalid data.")),
           );
         }
       } else {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text("Server Error")));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Server Error: ${response.statusCode}")),
+        );
       }
     } catch (e) {
-      Navigator.pop(context);
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("Error: $e")));
+      if (mounted && Navigator.canPop(context)) {
+         Navigator.pop(context);
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error: $e")),
+      );
     }
   }
 }

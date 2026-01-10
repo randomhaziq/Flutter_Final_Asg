@@ -52,11 +52,11 @@ class _ProfilePageState extends State<ProfilePage> {
                       border: Border.all(color: Colors.orange, width: 3),
                     ),
                     child:
-                        currentUser.userProfileImage != null &&
-                            currentUser.userProfileImage!.isNotEmpty
+                        currentUser.profileImage != null &&
+                            currentUser.profileImage!.isNotEmpty
                         // Load from server
                         ? Image.network(
-                            '${MyConfig.baseUrl}/pawpal/server/${currentUser.userProfileImage}',
+                            '${MyConfig.baseUrl}/pawpal/server/${currentUser.profileImage}',
                           )
                         : const Icon(
                             Icons.person,
