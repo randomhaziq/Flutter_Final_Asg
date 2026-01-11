@@ -101,7 +101,7 @@ class _PetDetailsPageState extends State<PetDetailsPage> {
                       ],
                     )
                   //SINGLE IMAGE
-                  : Container(
+                  : SizedBox(
                       width: double.infinity,
                       child: imageCount == 1
                           ? Image.network(
@@ -361,7 +361,7 @@ class _PetDetailsPageState extends State<PetDetailsPage> {
                 children: [
                   // Dropdown
                   DropdownButtonFormField<String>(
-                    value: selectedType,
+                    initialValue: selectedType,
                     decoration: const InputDecoration(
                       labelText: 'Donation Type',
                       border: OutlineInputBorder(),

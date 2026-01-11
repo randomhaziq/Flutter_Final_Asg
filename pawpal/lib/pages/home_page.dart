@@ -19,7 +19,7 @@ class BrowsePets extends StatefulWidget {
 class _BrowsePetsState extends State<BrowsePets> {
   User? currentUser;
   List<Pet> listPets = [];
-  List<String> categories = ["All", "Cat", "Dog", "Other"];
+  List<String> categories = ["All", "Cat", "Dog", "Bird", "Other"];
 
   String selectedCategory = "All";
   String searchQuery = "";

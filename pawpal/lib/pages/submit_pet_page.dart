@@ -137,7 +137,7 @@ class _SubmitPetScreenState extends State<SubmitPetScreen> {
                                   borderSide: BorderSide(color: Colors.orange),
                                 ),
                               ),
-                              value: selectedGender,
+                              initialValue: selectedGender,
                               items: <String>['Male', 'Female'].map((
                                 String value,
                               ) {

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:pawpal/model/user.dart';
-import 'package:pawpal/pages/home_page.dart';
 import 'package:pawpal/pages/login_page.dart';
 
 void main() {
